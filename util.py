@@ -15,7 +15,7 @@ def getChoice(items):
 def getChoices():
   input = raw_input("Enter Choice: ")
   try:
-    commands = [int(command) for command in input.split(" ")]
+    commands = [int(command) if command != "=" else command for command in input.split()]
   except:
     print("Not a valid command string.")
     enterToContinue()
