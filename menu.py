@@ -23,7 +23,7 @@ class Menu(object):
 
     while choice != 0 and not self.returningHome:
       printSeparator()
-      print(time.asctime(time.localtime()).rjust(MENU_WIDTH))
+      print(time.strftime("%A, %d %b %Y %H:%M:%S %Z").rjust(MENU_WIDTH))
       print("%s [%s]" % ((self.name, self.locationString().strip())))
       print(self.description)
  
@@ -46,7 +46,6 @@ class Menu(object):
           commands = validChildren[choice].execute(self,choice,commands)
 
     self.returningHome = False
-    printSeparator()
     return commands
 
   def isValid(self, item):

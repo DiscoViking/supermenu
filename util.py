@@ -26,7 +26,7 @@ def printSeparator():
   if CLEAR_SCREEN:
     os.system("clear")
   else:
-    print("-" * MENU_WIDTH)
+    print("\n%s\n" % ("-" * MENU_WIDTH))
  
 def enterToContinue():
   print("")
