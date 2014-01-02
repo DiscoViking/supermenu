@@ -36,7 +36,7 @@ class Menu(Item):
     while choice != 0 and not self.returningHome:
       printSeparator()
       print(time.strftime("%A, %d %b %Y %H:%M:%S %Z").rjust(MENU_WIDTH))
-      print("[%s] [%s]" % ((self.name, self.locationString().strip())))
+      print("[%s] [%s]" % ((self.path(), self.locationString().strip())))
       print(self.description)
  
       backAction = Menu("Back" if parent != None else "Exit", 
@@ -86,6 +86,12 @@ class Menu(Item):
       return "="
     
     return self.parent.locationString() + " " + str(self.location)
+
+  def path(self):
+    if self.parent == None:
+      return self.name
+    
+    return self.parent.path() + "->" + self.name
 
 class Action(Item):
   def __init__(self, name, description, script, params=[]):
