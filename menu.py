@@ -1,10 +1,10 @@
 import os
 import subprocess
+import time
 
+from globals import *
 from util import *
 
-#CONSTANTS
-MAX_ITEM_NAME_LEN = 20
 
 class Item(object):
   def __init__(self):
@@ -35,7 +35,8 @@ class Menu(Item):
 
     while choice != 0 and not self.returningHome:
       printSeparator()
-      print("%s [%s]" % ((self.name, self.locationString().strip())))
+      print(time.strftime("%A, %d %b %Y %H:%M:%S %Z").rjust(MENU_WIDTH))
+      print("[%s] [%s]" % ((self.name, self.locationString().strip())))
       print(self.description)
  
       backAction = Menu("Back" if parent != None else "Exit", 
@@ -69,7 +70,6 @@ class Menu(Item):
             commands = command.execute(self, choice, commands)
 
     self.returningHome = False
-    printSeparator()
     return commands
 
   def isValid(self, item):
