@@ -24,7 +24,7 @@ class Menu(object):
     while choice != 0 and not self.returningHome:
       printSeparator()
       print(time.strftime("%A, %d %b %Y %H:%M:%S %Z").rjust(MENU_WIDTH))
-      print("%s [%s]" % ((self.name, self.locationString().strip())))
+      print("[%s] [%s]" % ((self.name, self.locationString().strip())))
       print(self.description)
  
       backAction = Action("Back", "Go up a menu level", None)
