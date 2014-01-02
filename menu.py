@@ -1,10 +1,10 @@
 import os
 import subprocess
+import time
 
+from globals import *
 from util import *
 
-#CONSTANTS
-MAX_ITEM_NAME_LEN = 20
 
 class Menu(object):
   def __init__(self, name, description, children):
@@ -23,6 +23,7 @@ class Menu(object):
 
     while choice != 0 and not self.returningHome:
       printSeparator()
+      print(time.asctime(time.localtime()).rjust(MENU_WIDTH))
       print("%s [%s]" % ((self.name, self.locationString().strip())))
       print(self.description)
  
@@ -31,7 +32,7 @@ class Menu(object):
       validChildren = [backAction] + [child for child in self.children if self.isValid(child)]    
 
       for i in range(len(validChildren)):
-	print("  %d: %s %s" % (i, validChildren[i].name.ljust(MAX_ITEM_NAME_LEN), validChildren[i].description))
+	      print("  %d: %s %s" % (i, validChildren[i].name.ljust(MAX_ITEM_NAME_LEN)[:MAX_ITEM_NAME_LEN], validChildren[i].description))
 
       if len(commands) == 0:
         commands = getChoices()

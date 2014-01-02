@@ -1,6 +1,5 @@
 import os
-
-CLEAR_SCREEN = True 
+from globals import *
 
 def getChoice(items):
   input = raw_input("Enter Choice: ")
@@ -27,7 +26,7 @@ def printSeparator():
   if CLEAR_SCREEN:
     os.system("clear")
   else:
-    print("")
+    print("-" * MENU_WIDTH)
  
 def enterToContinue():
   print("")
