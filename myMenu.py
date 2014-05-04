@@ -3,7 +3,7 @@
 import menu
 import flag
 
-cowsay = menu.Action("Clever Cow","Inspirational words from a cow.",["/usr/games/fortune | /usr/games/cowsay"])
+cowsay = menu.Action("Clever Cow","Inspirational words from a cow.",["/root/git/supermenu/fortunecow"])
 flag1 = flag.EnvFlag("HASCOW", custFunc=lambda a, b: int(a) > 3)
 cowsay.addFlag(flag1)
 option1 = menu.Action("Print Hello","Prints 'Hello' to the screen.",["/bin/echo","Hello"])

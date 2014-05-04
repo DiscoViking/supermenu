@@ -203,7 +203,7 @@ class Action(Item):
         process = None
         try:
             # Execute the command.
-            process = subprocess.Popen(systemString)
+            process = subprocess.Popen(systemString, bufsize=-1)
             process.wait()
         except KeyboardInterrupt as e:
             message = "Action cancelled."
