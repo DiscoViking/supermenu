@@ -12,7 +12,13 @@ def getChoice(items):
   return items[textItems.index(input)]
 
 def getChoices():
-  input = raw_input("Enter Choice: ")
+  input = ""
+  while input == "":
+    try:
+      input = raw_input("Enter Choice: ")
+    except KeyboardInterrupt:
+      print("")
+      return []
   try:
     commands = [int(command) if command != "=" else command for command in input.split()]
   except:

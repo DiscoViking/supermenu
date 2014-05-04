@@ -2,8 +2,9 @@ import os
 import subprocess
 import time
 
-from globals import *
+import globals
 from util import *
+import value
 
 
 class Item(object):
@@ -16,12 +17,18 @@ class Item(object):
   def removeFlag(self, flag):
     self.flags.remove(flag)
 
+  def isValid(self):
+    for flag in self.flags:
+      if not flag.isValid():
+        return False
+    return True
+
 class Menu(Item):
   def __init__(self, name, description, children):
     super(Menu,self).__init__()
     self.children = children
     self.name = name
-    assert(len(name) <= MAX_ITEM_NAME_LEN)
+    assert(len(name) <= globals.MAX_ITEM_NAME_LEN)
     self.description = description
     self.returningHome = False
     self.parent = None
@@ -35,18 +42,16 @@ class Menu(Item):
 
     while choice != 0 and not self.returningHome:
       printSeparator()
-      print(time.strftime("%A, %d %b %Y %H:%M:%S %Z").rjust(MENU_WIDTH))
-      print("[%s] [%s]" % ((self.path(), self.locationString().strip())))
-      print(self.description)
+      self.printHeader()
  
       backAction = Menu("Back" if parent != None else "Exit", 
                         "Go up a menu level" if parent != None else "Exit the menu.", 
                         None)
       
-      validChildren = [backAction] + [child for child in self.children if self.isValid(child)]    
+      validChildren = [backAction] + [child for child in self.children if child.isValid()]    
 
       for i in range(len(validChildren)):
-	print("  %d: %s %s %s" % (i, validChildren[i].name.ljust(MAX_ITEM_NAME_LEN), 
+	print("  %d: %s %s %s" % (i, validChildren[i].name.ljust(globals.MAX_ITEM_NAME_LEN), 
                                   ">" if isinstance(validChildren[i], Menu) else " ",
                                   validChildren[i].description))
 
@@ -67,13 +72,18 @@ class Menu(Item):
             commands = []
             command = None
           else:
-            commands = command.execute(self, choice, commands)
+            try:
+              commands = command.execute(self, choice, commands)
+            except KeyboardInterrupt:
+              commands = []
 
     self.returningHome = False
     return commands
 
-  def isValid(self, item):
-    return True
+  def printHeader(self):
+    print(time.strftime("%A, %d %b %Y %H:%M:%S %Z").rjust(globals.MENU_WIDTH))
+    print("[%s] [%s]" % ((self.path(), self.locationString().strip())))
+    print(self.description)
 
   def returnHome(self):
     if self.parent != None:
@@ -97,7 +107,7 @@ class Action(Item):
   def __init__(self, name, description, script, params=[]):
     super(Action,self).__init__()
     self.name = name
-    assert(len(name) <= MAX_ITEM_NAME_LEN)
+    assert(len(name) <= globals.MAX_ITEM_NAME_LEN)
     self.description = description
     self.script = script
     self.requireConfirmation = False
@@ -107,24 +117,10 @@ class Action(Item):
     input = None
 
     self.getParamValues()
-
-    if self.requireConfirmation:
-      printSeparator()
-      print(self.description)
-      print("")
-
-      for param in self.params:
-        print("%s: %s" % (param.name, param.value))
-
-      print("")
-      input = raw_input("Are you sure?(y/n): ")
-    else:
-      input = 'y'
     
-    if input == 'y':
+    if self.confirmParams():
       printSeparator()
-      systemString = self.script + [("%s %s" % (param.code,param.value)).strip() for param in self.params]
-      subprocess.call(systemString)
+      self.runCommand()
     else:
       print("Action cancelled.")
 
@@ -141,6 +137,41 @@ class Action(Item):
     for param in self.params:
       param.reset()
 
+  def confirmParams(self):
+    if self.requireConfirmation:
+      printSeparator()
+      print(self.description)
+      print("")
+
+      for param in self.params:
+        print("%s: %s" % (param.name, param.value))
+
+      if len(self.params) > 0:
+        print("")
+
+      input = raw_input("Are you sure?(y/n): ")
+      return True if input == 'y' else False
+    else:
+      return True
+
+  def runCommand(self):
+    systemString = self.script + [("%s %s" % (param.code,param.value)).strip() for param in self.params]
+    message = "Action complete."
+
+    process = None
+    try:
+      process = subprocess.Popen(systemString)
+      process.wait()
+    except KeyboardInterrupt as e:
+      message = "Action cancelled."
+    except Exception as e:
+      message = str(e)
+
+    if process:
+      process.wait()
+    print("")
+    print(message)
+
 class Parameter(object):
   def __init__(self, name, description, code="", default=None, choices=None):
     self.name = name
@@ -152,7 +183,7 @@ class Parameter(object):
 
   def evaluate(self):
     printSeparator()
-    print("%s %s" % (self.name.ljust(MAX_ITEM_NAME_LEN), self.description))
+    print("%s %s" % (self.name.ljust(globals.MAX_ITEM_NAME_LEN), self.description))
     print("Default is %s" % (self.default if self.value == None else self.value))
     print("")
    
