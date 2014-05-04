@@ -1,8 +1,10 @@
 import os
 
 class EnvValue:
-  def __init__(self, name):
-    self.name = name
+    """Represents an environment variable."""
+    def __init__(self, name):
+        self.name = name
 
-  def evaluate(self):
-    return os.getenv(self.name)
+    def evaluate(self):
+        """Evalutate the value of this value."""
+        return os.getenv(self.name)
