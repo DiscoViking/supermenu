@@ -45,9 +45,9 @@ class Display(object):
 
             self.window.chgat(4+selected, 5, 3+settings.MAX_ITEM_NAME_LEN, curses.A_NORMAL)
 
-            if c == curses.KEY_UP:
+            if c == curses.KEY_UP or c == ord('k'):
                 selected = max(0, selected - 1)
-            elif c == curses.KEY_DOWN:
+            elif c == curses.KEY_DOWN or c == ord('j'):
                 selected = min(len(self.currentOptions) - 1, selected + 1)
             elif c >= ord('0') and c <= ord('9'):
                 selected = c - ord('0')
