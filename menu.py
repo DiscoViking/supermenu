@@ -46,24 +46,17 @@ class Menu(Item):
         choice = ""
 
         while choice != 0 and not self.returningHome:
-            printSeparator()
-            self.printHeader()
- 
-            # Create the fake "Back" action to be displayed in the menu.
+            # Create the fake "Back" action to be displayed in the m.
             # In reality, this action is never executed, the 0 command
             # is handled specially.
-            backAction = Menu("Back" if parent != None else "Exit", 
-                                                "Go up a menu level" if parent != None else "Exit the menu.", 
-                                                None)
+            backAction = Menu("Back" if self.parent != None else "Exit", 
+                              "Go up a self level" if self.parent != None else "Exit the self.", 
+                              None)
             
-            # Get a list of valid children to display. Invalid items are not even displayed.
+            # Get a list of valid children to display. Invalid iteselfs are not even displayed.
             validChildren = [backAction] + [child for child in self.children if child.isValid()]        
 
-            # Display all valid children.
-            for i in range(len(validChildren)):
-                print("    %d: %s %s %s" % (i, validChildren[i].name.ljust(globals.MAX_ITEM_NAME_LEN), 
-                                            ">" if isinstance(validChildren[i], Menu) else " ",
-                                            validChildren[i].description))
+            globals.DISPLAY.drawMenu(self, validChildren)
 
             # Get the user's selection.
             # The if test here prevents us from pausing for input if we are
@@ -87,8 +80,7 @@ class Menu(Item):
                     try:
                         command = validChildren[choice]
                     except:
-                        print("Not a valid command.")
-                        enterToContinue()
+                        globals.DISPLAY.notice("Not a valid command.")
                         commands = []
                         command = None
                     else:
@@ -105,12 +97,6 @@ class Menu(Item):
 
         self.returningHome = False
         return commands
-
-    def printHeader(self):
-        """Prints a standard menu header, common to all menus."""
-        print(time.strftime("%A, %d %b %Y %H:%M:%S %Z").rjust(globals.MENU_WIDTH))
-        print("[%s] [%s]" % ((self.path(), self.locationString().strip())))
-        print(self.description)
 
     def returnHome(self):
         """Set ourselves to stop looping, and signal to our parent to do the same.
@@ -153,15 +139,13 @@ class Action(Item):
 
         self.getParamValues()
         
-        if self.confirmParams():
-            printSeparator()
+        if globals.DISPLAY.confirmParams(self):
+            globals.DISPLAY.printSeparator()
             self.runCommand()
         else:
-            print("Action cancelled.")
+            globals.DISPLAY.notice("Action cancelled.")
 
         self.resetParams()
-
-        enterToContinue()
         return []
 
     def getParamValues(self):
@@ -174,24 +158,6 @@ class Action(Item):
         this menu option is selected, all the default values are back."""
         for param in self.params:
             param.reset()
-
-    def confirmParams(self):
-        """If necessary, request confirmation of the parameter values."""
-        if self.requireConfirmation:
-            printSeparator()
-            print(self.description)
-            print("")
-
-            for param in self.params:
-                print("%s: %s" % (param.name, param.value))
-
-            if len(self.params) > 0:
-                print("")
-
-            input = raw_input("Are you sure?(y/n): ")
-            return True if input == 'y' else False
-        else:
-            return True
 
     def runCommand(self):
         """Actually run the command specified by the action, and the entered parameters."""
@@ -216,8 +182,8 @@ class Action(Item):
             # Ensure the process has terminated before continuing.
             # This prevents our output being overlapped by that of the process.
             process.wait()
-        print("")
-        print(message)
+
+        globals.DISPLAY.notice(message)
 
 class Parameter(object):
     """A parameter represents one piece of input to a script."""
@@ -232,17 +198,7 @@ class Parameter(object):
     def evaluate(self):
         """Evaluate the value of this parameter.
         Generally this means getting user input, but it doesn't have to."""
-        printSeparator()
-        print("%s %s" % (self.name.ljust(globals.MAX_ITEM_NAME_LEN), self.description))
-        print("Default is %s" % (self.default if self.value == None else self.value))
-        print("")
-     
-        while self.value == None: 
-            input = raw_input("Enter Choice: ")
-            if len(input) > 0:
-                self.value = input
-            else:
-                self.value = self.default
+        globals.DISPLAY.evaluateParam(self)
 
     def reset(self):
         """Reset this parameter, so its default value will once again take precedent."""
