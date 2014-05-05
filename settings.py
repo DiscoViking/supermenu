@@ -1,4 +1,4 @@
-import text_display as display
+import curses_display as display
 
 #Constants
 DISPLAY = display.Display()

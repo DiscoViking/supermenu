@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import menu
+import settings
 import flag
 
 cowsay = menu.Action("Clever Cow","Inspirational words from a cow.",["/root/git/supermenu/fortunecow"])
@@ -18,3 +19,5 @@ subMenu = menu.Menu("Submenu", "More stuff.", [option1,option2])
 topMenu = menu.Menu("A Menu","Some stuff to do.",[subMenu,cowsay])
 
 topMenu.execute(None,None);
+
+settings.DISPLAY.teardown()

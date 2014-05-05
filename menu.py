@@ -2,7 +2,7 @@ import os
 import subprocess
 import time
 
-import globals
+import settings
 from util import *
 import value
 
@@ -32,7 +32,7 @@ class Menu(Item):
         super(Menu,self).__init__()
         self.children = children
         self.name = name
-        assert(len(name) <= globals.MAX_ITEM_NAME_LEN)
+        assert(len(name) <= settings.MAX_ITEM_NAME_LEN)
         self.description = description
         self.returningHome = False
         self.parent = None
@@ -50,19 +50,19 @@ class Menu(Item):
             # In reality, this action is never executed, the 0 command
             # is handled specially.
             backAction = Menu("Back" if self.parent != None else "Exit", 
-                              "Go up a self level" if self.parent != None else "Exit the self.", 
+                              "Go up a menu level" if self.parent != None else "Exit the menu.", 
                               None)
             
             # Get a list of valid children to display. Invalid iteselfs are not even displayed.
             validChildren = [backAction] + [child for child in self.children if child.isValid()]        
 
-            globals.DISPLAY.drawMenu(self, validChildren)
+            settings.DISPLAY.drawMenu(self, validChildren)
 
             # Get the user's selection.
             # The if test here prevents us from pausing for input if we are
             # evaluating a command chain.
             if len(commands) == 0:
-                commands = getChoices()
+                commands = settings.DISPLAY.getChoices()
 
             # If we got some commands, evalutate them.
             # If not, the loop will spin and the menu will be printed again.
@@ -80,7 +80,7 @@ class Menu(Item):
                     try:
                         command = validChildren[choice]
                     except:
-                        globals.DISPLAY.notice("Not a valid command.")
+                        settings.DISPLAY.notice("Not a valid command.")
                         commands = []
                         command = None
                     else:
@@ -127,7 +127,7 @@ class Action(Item):
     def __init__(self, name, description, script, params=[]):
         super(Action,self).__init__()
         self.name = name
-        assert(len(name) <= globals.MAX_ITEM_NAME_LEN)
+        assert(len(name) <= settings.MAX_ITEM_NAME_LEN)
         self.description = description
         self.script = script
         self.requireConfirmation = False
@@ -139,11 +139,11 @@ class Action(Item):
 
         self.getParamValues()
         
-        if globals.DISPLAY.confirmParams(self):
-            globals.DISPLAY.printSeparator()
+        if settings.DISPLAY.confirmParams(self):
+            settings.DISPLAY.printSeparator()
             self.runCommand()
         else:
-            globals.DISPLAY.notice("Action cancelled.")
+            settings.DISPLAY.notice("Action cancelled.")
 
         self.resetParams()
         return []
@@ -183,7 +183,7 @@ class Action(Item):
             # This prevents our output being overlapped by that of the process.
             process.wait()
 
-        globals.DISPLAY.notice(message)
+        settings.DISPLAY.notice(message)
 
 class Parameter(object):
     """A parameter represents one piece of input to a script."""
@@ -198,7 +198,7 @@ class Parameter(object):
     def evaluate(self):
         """Evaluate the value of this parameter.
         Generally this means getting user input, but it doesn't have to."""
-        globals.DISPLAY.evaluateParam(self)
+        settings.DISPLAY.evaluateParam(self)
 
     def reset(self):
         """Reset this parameter, so its default value will once again take precedent."""

@@ -1,5 +1,5 @@
 import os
-from globals import *
+from settings import *
 
 def getChoice(items):
     """Get a single input value from the user."""
@@ -11,27 +11,6 @@ def getChoice(items):
         input = raw_input("Enter Choice: ")
 
     return items[textItems.index(input)]
-
-def getChoices():
-    """Get a valid command string from the user.
-    A valid command string consists of some number of valid commands (numbers or =)
-    separated by whitespace.
-    If the input string is invalid, returns an empty command list."""
-    input = ""
-    while input == "":
-        try:
-            input = raw_input("Enter Choice: ")
-        except KeyboardInterrupt:
-            print("")
-            return []
-    try:
-        commands = [int(command) if command != "=" else command for command in input.split()]
-    except:
-        print("Not a valid command string.")
-        enterToContinue()
-        commands = []
-
-    return commands
         
 def printSeparator():
     """DIsplays an obvious visual separator designed to separate menu levels etc."""
